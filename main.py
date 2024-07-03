@@ -1,18 +1,28 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from tkinter.scrolledtext import ScrolledText  # Import ScrolledText for better log display
 from selenium import webdriver
 from getpass import getpass
 import utils
+import sys
+
+class StdoutRedirector:
+    def __init__(self, text_widget):
+        self.text_space = text_widget
+
+    def write(self, text):
+        self.text_space.insert(tk.END, text)
+        self.text_space.see(tk.END)  # Scroll to the end
 
 def toggle_recurring_fields():
     if recurring_var.get() == 'y':
-        recurring_end_day_label.grid()
+        recurring_end_date_label.grid()
         recurring_end_day_entry.grid()
         recurring_end_month_entry.grid()
         recurring_end_year_entry.grid()
         recurring_days_frame.grid()
     else:
-        recurring_end_day_label.grid_remove()
+        recurring_end_date_label.grid_remove()
         recurring_end_day_entry.grid_remove()
         recurring_end_month_entry.grid_remove()
         recurring_end_year_entry.grid_remove()
@@ -20,8 +30,17 @@ def toggle_recurring_fields():
 
 def start_bot():
     try:
+        log_window = tk.Toplevel(root)
+        log_window.title("Log Window")
+        
+        log_text = ScrolledText(log_window, height=20, width=60)
+        log_text.pack(fill=tk.BOTH, expand=True)
+        
+        sys.stdout = StdoutRedirector(log_text)  # Redirect stdout to log_text
+
         driver = webdriver.Chrome()
         driver.implicitly_wait(1)
+        
         url = "https://mediasite.ucdavis.edu/Mediasite/manage"
         username = username_entry.get()
         password = password_entry.get()
@@ -29,8 +48,8 @@ def start_bot():
         destination_folder = folder_path.split("/")[-1]
         room_number = room_number_entry.get()
         title = title_entry.get()
-        start_day = int(start_day_entry.get())
         start_month = int(start_month_entry.get())
+        start_day = int(start_day_entry.get())
         start_year = int(start_year_entry.get())
         start_hour = int(start_hour_entry.get())
         start_minute = int(start_minute_entry.get())
@@ -41,31 +60,59 @@ def start_bot():
         recurring = recurring_var.get()
         if recurring == 'y':
             recurring = True
-            recurring_end_day = int(recurring_end_day_entry.get())
             recurring_end_month = int(recurring_end_month_entry.get())
+            recurring_end_day = int(recurring_end_day_entry.get())
             recurring_end_year = int(recurring_end_year_entry.get())
             recurring_days = ''.join(day for index, day in enumerate(days_of_week) if recurring_days_vars[index].get() == "1")
         else:
             recurring = False
 
         utils.login(driver, url, username, password)
+        
         utils.navigate_to_folder(driver, folder_path)
+        
         utils.add_new_schedule(driver, destination_folder)
+        
         utils.input_schedule(driver, title, room_number)
+        
         utils.select_start_date(driver, start_month, start_day, start_year)
+        
         utils.select_start_time(driver, start_hour, start_minute, start_am_pm)
+        
         utils.set_duration(driver, duration_hour, duration_minute)
+        
         if recurring:
             utils.repeats_weekly(driver, recurring_end_month, recurring_end_day, recurring_end_year, recurring_days)
         else:
             utils.repeats_one_time_only(driver)
-        utils.save_recurrence(driver)
         
-        messagebox.showinfo("Success", "Schedule created successfully!")
+        utils.save_recurrence(driver)
+
+        # TODO uncomment
+        # utils.save_schedule(driver)
+
+        # utils.close_schedule(driver)
+        
+        # Inform user about completion
+        log_text.insert(tk.END, "Schedule created successfully!\n")
+        
+        # Add Quit button with confirmation dialog
+        def confirm_quit():
+            if messagebox.askokcancel("Close", "Are you sure you want to close the webdriver?"):
+                log_window.destroy()
+        
+        quit_button = tk.Button(log_window, text="Close", command=confirm_quit)
+        quit_button.pack(side=tk.BOTTOM, padx=10, pady=10)
+        
+        log_window.protocol("WM_DELETE_WINDOW", confirm_quit)  # Handle window close event
+        
+        log_window.wait_window()  # Wait for log window to be closed
+        
     except Exception as e:
-        messagebox.showerror("Error", str(e))
+        log_text.insert(tk.END, f"Error: {str(e)}\n")
     finally:
-        driver.quit()
+        if 'driver' in locals():
+            driver.quit()
 
 def quit_app():
     root.destroy()
@@ -99,11 +146,11 @@ title_entry = tk.Entry(root)
 title_entry.grid(row=4, column=1, padx=10, pady=5)
 
 # Start date
-tk.Label(root, text="Start Date (DD/MM/YYYY):").grid(row=5, column=0, padx=10, pady=5)
-start_day_entry = tk.Entry(root, width=5)
-start_day_entry.grid(row=5, column=1, padx=10, pady=5, sticky='w')
+tk.Label(root, text="Start Date (MM/DD/YYYY):").grid(row=5, column=0, padx=10, pady=5)
 start_month_entry = tk.Entry(root, width=5)
-start_month_entry.grid(row=5, column=1, padx=10, pady=5)
+start_month_entry.grid(row=5, column=1, padx=10, pady=5, sticky='w')
+start_day_entry = tk.Entry(root, width=5)
+start_day_entry.grid(row=5, column=1, padx=10, pady=5)
 start_year_entry = tk.Entry(root, width=7)
 start_year_entry.grid(row=5, column=1, padx=10, pady=5, sticky='e')
 
@@ -131,12 +178,12 @@ tk.Radiobutton(root, text="Yes", variable=recurring_var, value="y", command=togg
 tk.Radiobutton(root, text="No", variable=recurring_var, value="n", command=toggle_recurring_fields).grid(row=8, column=1, padx=10, pady=5, sticky='e')
 
 # Recurring end date
-recurring_end_day_label = tk.Label(root, text="Recurring End Date (DD/MM/YYYY):")
-recurring_end_day_label.grid(row=9, column=0, padx=10, pady=5)
-recurring_end_day_entry = tk.Entry(root, width=5)
-recurring_end_day_entry.grid(row=9, column=1, padx=10, pady=5, sticky='w')
+recurring_end_date_label = tk.Label(root, text="Recurring End Date (MM/DD/YYYY):")
+recurring_end_date_label.grid(row=9, column=0, padx=10, pady=5)
 recurring_end_month_entry = tk.Entry(root, width=5)
-recurring_end_month_entry.grid(row=9, column=1, padx=10, pady=5)
+recurring_end_month_entry.grid(row=9, column=1, padx=10, pady=5, sticky='w')
+recurring_end_day_entry = tk.Entry(root, width=5)
+recurring_end_day_entry.grid(row=9, column=1, padx=10, pady=5)
 recurring_end_year_entry = tk.Entry(root, width=7)
 recurring_end_year_entry.grid(row=9, column=1, padx=10, pady=5, sticky='e')
 

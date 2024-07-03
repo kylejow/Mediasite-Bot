@@ -323,7 +323,7 @@ def select_start_date(driver, month, day, year):
     # except:
     #     raise RuntimeError("Failed to set start date.")
 
-    print(f"Start date set to: {month}/{day}/{year}")
+    print(f"Start date set to: {month:02}/{day:02}/{year}")
 
 # datepicker must be open
 # navigates to the desired date
@@ -405,7 +405,7 @@ def select_start_time(driver, start_hour, start_minute, start_am_pm):
     # except:
     #     raise RuntimeError("Failed to set start time.")
 
-    print(f"Start time set to: {start_hour}:{start_minute} {start_am_pm}")
+    print(f"Start time set to: {start_hour:02}:{start_minute:02} {start_am_pm}")
 
 # sets recurrence duration
 def set_duration(driver, duration_hour, duration_minute):
@@ -445,7 +445,7 @@ def set_duration(driver, duration_hour, duration_minute):
     # verify that the time was set correctly
     # timepicker value does not change?
 
-    print(f"Duration set to: {duration_hour}:{duration_minute}")
+    print(f"Duration set to: {duration_hour}:{duration_minute:02}")
 
 # sets recurrence to "One Time Only"
 def repeats_one_time_only(driver):
@@ -515,7 +515,7 @@ def repeats_weekly(driver, end_month, end_day, end_year, days_of_week):
     # except:
     #     raise RuntimeError("Failed to set start date.")
 
-    # print(f"Recurring end date set to: {end_month}/{end_day}/{end_year}")
+    print(f"Recurring end date set to: {end_month}/{end_day}/{end_year}")
 
 # saves the recurrence
 def save_recurrence(driver):
@@ -535,10 +535,13 @@ def save_schedule(driver):
     # wait for schedule to save
     sleep(3)
 
+    print("Schedule saved.")
+
+# closes the schedule window
+def close_schedule(driver):
     close_button = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.CLASS_NAME, 'panel-close'))
     )
     close_button.click()
 
-    print("Schedule saved.")
-
+    print("Schedule closed.")
