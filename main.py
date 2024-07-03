@@ -151,7 +151,7 @@ start_month_entry = tk.Entry(root, width=5)
 start_month_entry.grid(row=5, column=1, padx=10, pady=5, sticky='w')
 start_day_entry = tk.Entry(root, width=5)
 start_day_entry.grid(row=5, column=1, padx=10, pady=5)
-start_year_entry = tk.Entry(root, width=7)
+start_year_entry = tk.Entry(root, width=5)
 start_year_entry.grid(row=5, column=1, padx=10, pady=5, sticky='e')
 
 # Start time
@@ -160,9 +160,19 @@ start_hour_entry = tk.Entry(root, width=5)
 start_hour_entry.grid(row=6, column=1, padx=10, pady=5, sticky='w')
 start_minute_entry = tk.Entry(root, width=5)
 start_minute_entry.grid(row=6, column=1, padx=10, pady=5)
+
 am_pm_var = tk.StringVar()
 am_pm_var.set("AM")
-ttk.Combobox(root, textvariable=am_pm_var, values=["AM", "PM"], width=5).grid(row=6, column=1, padx=10, pady=5, sticky='e')
+
+# Toggle function for AM/PM
+def toggle_am_pm():
+    current_value = am_pm_var.get()
+    new_value = "PM" if current_value == "AM" else "AM"
+    am_pm_var.set(new_value)
+
+# Button to toggle between AM and PM
+am_pm_button = tk.Button(root, textvariable=am_pm_var, command=toggle_am_pm, width=4)
+am_pm_button.grid(row=6, column=1, padx=5, pady=5, sticky='e')
 
 # Duration
 tk.Label(root, text="Duration (HH:MM):").grid(row=7, column=0, padx=10, pady=5)
@@ -178,24 +188,24 @@ tk.Radiobutton(root, text="Yes", variable=recurring_var, value="y", command=togg
 tk.Radiobutton(root, text="No", variable=recurring_var, value="n", command=toggle_recurring_fields).grid(row=8, column=1, padx=10, pady=5, sticky='e')
 
 # Recurring end date
-recurring_end_date_label = tk.Label(root, text="Recurring End Date (MM/DD/YYYY):")
+recurring_end_date_label = tk.Label(root, text="End Date (MM/DD/YYYY):")
 recurring_end_date_label.grid(row=9, column=0, padx=10, pady=5)
 recurring_end_month_entry = tk.Entry(root, width=5)
 recurring_end_month_entry.grid(row=9, column=1, padx=10, pady=5, sticky='w')
 recurring_end_day_entry = tk.Entry(root, width=5)
 recurring_end_day_entry.grid(row=9, column=1, padx=10, pady=5)
-recurring_end_year_entry = tk.Entry(root, width=7)
+recurring_end_year_entry = tk.Entry(root, width=5)
 recurring_end_year_entry.grid(row=9, column=1, padx=10, pady=5, sticky='e')
 
-# Recurring days
+# Recurring days frame
 recurring_days_frame = tk.Frame(root)
-recurring_days_frame.grid(row=10, column=1, padx=10, pady=5, sticky='w')
+recurring_days_frame.grid(row=10, column=0, columnspan=2, padx=10, pady=5)
 
 days_of_week = ["M", "T", "W", "R", "F"]  # Days of the week
 recurring_days_vars = []
 for index, day in enumerate(days_of_week):
     day_var = tk.StringVar(value="0")
-    tk.Checkbutton(recurring_days_frame, text=day, variable=day_var, onvalue="1", offvalue="0").grid(row=0, column=index, padx=5, pady=5, sticky='w')
+    tk.Checkbutton(recurring_days_frame, text=day, variable=day_var, onvalue="1", offvalue="0").grid(row=0, column=index, padx=0, pady=5, sticky='w')
     recurring_days_vars.append(day_var)
 
 # Initial state of recurring fields
