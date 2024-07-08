@@ -37,39 +37,53 @@ def login(driver, url, username, password):
 
 # navigate to parent folder prior to running this
 def add_new_folder(driver, parent_folder_name, new_folder_name):
-    parent_folder = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.XPATH, f"//a[text()='{parent_folder_name}']"))
+    navigation = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.ID, "NavContent"))
     )
+    parent_folder_element = navigation.find_element(By.XPATH, f".//a[text()='{parent_folder_name}']")
 
+    # right click on parent folder
     actions = ActionChains(driver)
-    actions.context_click(parent_folder).perform()
+    actions.context_click(parent_folder_element).perform()
 
+    # await context menu to appear
     context_menu = WebDriverWait(driver, 5).until(
         EC.visibility_of_element_located((By.ID, 'vakata-contextmenu-only'))
     )
 
+    # if context menu is visible, click on "Add New -> Schedule"
     if context_menu.is_displayed() and context_menu.value_of_css_property("visibility") == "visible":
-        add_folder = WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, ".//a[text()='Add Folder...']"))
-        )
-        add_folder.click()
+        add_new_option = context_menu.find_element(By.XPATH, ".//a[text()='Add Folder...']")
+        add_new_option.click()
     else:
-        print("Context menu is not visible.")
+        raise RuntimeError("Context menu is not visible.")
 
-
-    folder_name_input = WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "nameBox"))
+    # wait for add folder dialog to appear
+    add_folder_dialog = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.ID, "content"))
     )
+
+    # input new folder name
+    folder_name_input = add_folder_dialog.find_element(By.XPATH, "//input[@id='Name']")
     actions = ActionChains(driver)
     actions.move_to_element(folder_name_input).click().send_keys(new_folder_name).perform()
 
+    # click on the "Save" button
     save_button = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, "Save"))
     )
     save_button.click()
 
+    # wait for new folder to be added
+    try:
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, f".//a[@id='Name' and text()='{new_folder_name}']"))
+        )
+    except:
+        raise RuntimeError(f"Could not add new folder: {new_folder_name}")
+
     print(f"Added new folder: {new_folder_name}")
-    sleep(1)
+    sleep(1.5)
 
 # navigates to folder given folder path (ex "Test Folder/Law - In Use/Student Assistant Test Edit Folder")
 def navigate_to_folder(driver, folder_path):
@@ -83,7 +97,7 @@ def navigate_to_folder(driver, folder_path):
         folder_element = navigation.find_element(By.XPATH, f".//a[text()='{folder}']")
         folder_element.click()
         # wait for folder to expand
-        sleep(1)
+        sleep(1.5)
 
     try:
         navigation.find_element(By.XPATH, f".//a[text()='{folders[-1]}']")
