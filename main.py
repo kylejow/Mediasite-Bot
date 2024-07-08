@@ -130,10 +130,22 @@ tk.Label(root, text="Password:").grid(row=1, column=0, padx=10, pady=5)
 password_entry = tk.Entry(root, show="*")
 password_entry.grid(row=1, column=1, padx=10, pady=5)
 
-# Folder path
+# Folder Path
+def select_common_path(selected_path):
+    folder_entry.delete(0, tk.END)
+    folder_entry.insert(0, selected_path)
 tk.Label(root, text="Folder Path:").grid(row=2, column=0, padx=10, pady=5)
 folder_entry = tk.Entry(root)
 folder_entry.grid(row=2, column=1, padx=10, pady=5)
+menubutton = tk.Menubutton(root, text="▼", relief="raised")
+menubutton.grid(row=2, column=2, padx=0, pady=5)
+menu = tk.Menu(menubutton, tearoff=0)
+menubutton.configure(menu=menu)
+common_paths = ["Law/Academic Success/1LASP Workshops 2023-24",
+                "Test Folder/Law - In Use/Student Assistant Test Edit Folder",
+               ]
+for path in common_paths:
+    menu.add_command(label=path, command=lambda p=path: select_common_path(p))
 
 # Room number
 tk.Label(root, text="Room Number:").grid(row=3, column=0, padx=10, pady=5)
