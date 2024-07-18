@@ -34,8 +34,9 @@ for index, course in courses.iterrows():
     start_hour = int(start.strftime('%I'))
     start_minute = int(start.strftime('%M'))
     start_am_pm = start.strftime('%p')
-    duration_hour = int(course['duration_hour'])
-    duration_minute = int(course['duration_minute']) + 2
+    duration = course['duration']
+    duration_hour = int(duration.strftime('%I'))
+    duration_minute = int(duration.strftime('%M')) + 2
     recurring_days = course['days']
 
     try:
