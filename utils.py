@@ -199,7 +199,7 @@ def add_schedule_scheduleOptions(driver, room):
 
     # set the presentation naming
     presentation_naming = WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.ID, 'TitleTypeId'))
+        EC.element_to_be_clickable((By.ID, 'TitleTypeId'))
     )
     presentation_naming_selector = Select(presentation_naming)
     # wait for the dropdown to be clickable
