@@ -11,7 +11,7 @@ def is_valid_time(t):
 
 # Function to validate duration
 def is_valid_duration(hours, minutes):
-    return hours >= 0 and minutes >= 0
+    return (hours == 0 and minutes > 0) or (hours > 0 and minutes >= 0)
 
 # Function to validate recurring days in MTWRF format
 def is_valid_days(days):

@@ -35,8 +35,8 @@ for index, course in courses.iterrows():
     start_minute = int(start.strftime('%M'))
     start_am_pm = start.strftime('%p')
     duration = course['duration']
-    duration_hour = int(duration.strftime('%I'))
-    duration_minute = int(duration.strftime('%M')) + 2
+    duration_hour = course['duration_hour']
+    duration_minute = course['duration_minute'] + 2
     recurring_days = course['days']
 
     try:
@@ -55,4 +55,3 @@ for index, course in courses.iterrows():
         print(course)
         driver.quit()
         break
-        
