@@ -142,7 +142,7 @@ def input_schedule(driver, title, room):
     add_schedule_change_template(driver)
     add_schedule_information(driver, title)
     add_schedule_scheduleOptions(driver, room)
-    add_schedule_delivery(driver)
+    # add_schedule_delivery(driver)
     add_recurrence(driver)
 
 # changes the template to "Law Template - MP4 (On-Demand)"

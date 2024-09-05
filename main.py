@@ -141,7 +141,7 @@ menubutton = tk.Menubutton(root, text="▼", relief="raised")
 menubutton.grid(row=2, column=2, padx=0, pady=5)
 menu = tk.Menu(menubutton, tearoff=0)
 menubutton.configure(menu=menu)
-common_paths = ["Law/Academic Success/1LASP Workshops 2023-24",
+common_paths = ["Law/Academic Success/1LASP Workshops 2024-25",
                 "Test Folder/Law - In Use/Student Assistant Test Edit Folder",
                ]
 for path in common_paths:
